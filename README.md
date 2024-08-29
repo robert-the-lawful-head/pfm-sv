@@ -1,133 +1,120 @@
-# Armadillo in a Cube
+# SaaS platform using AWS Lambda
 
-Rotating cube with a texture of a rotating armadillo
+This project is a web application designed to facilitate the lookup and update of zip code data stored in two separate databases. The application interacts with CSV files uploaded by the user to either retrieve or update information on internet products and populations within specific zip codes. The solution is implemented using Python for the backend and React for the frontend.
 
-## Overview
+## Project Structure
 
-This project implements a 3D rendering of an armadillo model inside a rotating cube. The solution demonstrates platform-specific windowing backends, mesh data loading, framebuffer setup, texture rendering, and scene management using OpenGL.
+The project is organized into several key directories and files:
 
-The code is designed to be cross-platform, supporting Windows, Linux, and macOS. The armadillo model is rendered offscreen and used as a texture for the rotating cube, showcasing dynamic texture mapping and shader programming.
+- **`/backend`**: Contains the Python code that powers the serverless backend, including the Lambda functions and utility scripts.
+- **`/frontend`**: Contains the React application that provides the user interface.
+- **`/data`**: Contains sample CSV files used for testing the application.
 
-## Features
+## Installation and Setup
 
-- **Platform Detection:** Automatically configures the environment based on the operating system (Windows, Linux, macOS).
-- **Mesh Data Loading:** Loads vertex positions, normals, and triangle indices from the `armadillo.bin` file to define the 3D model.
-- **Framebuffer Setup:** Renders the armadillo model to a texture using an offscreen framebuffer.
-- **Scene Initialization:** Sets up vertex array objects (VAOs) and shaders for the cube and armadillo model.
-- **Texture Mapping:** Applies the rendered armadillo texture to the rotating cube.
-- **Rendering Loop:** Continuously renders the scene with both the rotating cube and armadillo model.
-- **Optimization and Cleanup:** Properly manages and cleans up OpenGL resources to prevent memory leaks.
+To run the application locally or deploy it to the cloud, follow these steps:
 
-## How It Works
+### Prerequisites
 
-### Mesh Data Loading
+- Node.js (for running the React application)
+- Python 3.x (for running the backend functions)
+- AWS CLI (for deploying the backend if using AWS)
+- Serverless Framework (for deploying the backend)
 
-The mesh data is loaded from the `armadillo.bin` file, containing the necessary vertex positions, normals, and triangle indices.
+### Local Setup
 
-```c
-int32_t load_mesh_data(const char* filename, MeshData* out_data);
-```
+1. **Clone the Repository**:
+    ```bash
+    git clone https://github.com/your-repo/pfm-sv-main.git
+    cd pfm-sv-main
+    ```
 
-This function reads the vertex and triangle data from the file, packing vertex positions and normals together.
+2. **Backend Setup**:
+    - Navigate to the `backend` directory:
+      ```bash
+      cd backend
+      ```
+    - Install Python dependencies:
+      ```bash
+      pip install -r requirements.txt
+      ```
+    - Install Node.js dependencies for the Serverless Framework:
+      ```bash
+      npm install
+      ```
+    - Run the backend locally using the Serverless Framework:
+      ```bash
+      serverless offline
+      ```
 
-### Framebuffer Setup and Texture Rendering
+3. **Frontend Setup**:
+    - Navigate to the `frontend` directory:
+      ```bash
+      cd ../frontend
+      ```
+    - Install Node.js dependencies:
+      ```bash
+      npm install
+      ```
+    - Start the React application:
+      ```bash
+      npm start
+      ```
 
-The armadillo model is rendered offscreen to a texture, which is later used to texture the rotating cube.
-
-```c
-void init_texture(SceneData* scene, MeshData* mesh);
-```
-
-This function sets up the offscreen framebuffer and attaches the texture, allowing the armadillo model to be rendered without being directly displayed.
-
-### Scene Initialization
-
-Vertex array objects and shaders are initialized for both the cube and armadillo model. The shaders handle lighting, material properties, normal mapping, and other rendering needs.
-
-```c
-void init_cube(SceneData* scene);
-void init_model(SceneData* scene, MeshData* mesh_data);
-```
-
-These functions set up the VAOs, VBOs, and shaders for the cube and armadillo model.
-
-### Texture Mapping
-
-The texture created from the armadillo model is applied to the rotating cube, giving it a dynamic appearance.
-
-### Rendering Loop
-
-The scene is continuously rendered, updating the cube's texture as it rotates.
-
-```c
-void frame(SceneData* scene, MeshData* mesh_data);
-void render_model(SceneData* scene, MeshData* mesh);
-```
-
-The `frame` function handles the rendering loop, where the cube's appearance is updated by the applied texture.
-
-### Optimization and Cleanup
-
-All allocated resources, such as VAOs, shaders, and dynamically allocated memory, are properly managed and cleaned up at the end of the program.
+4. **Data Setup**:
+    - Sample CSV files are located in the `data` directory for testing purposes.
 
 ## Usage
 
-1. **Dependencies**:
-    - Ensure you have the necessary libraries installed (GLFW, GLAD, OpenGL).
-   
-2. **Compiling**:
-    - Refer to the `README.md` of the assessment for detailed instructions on compiling the code.
+Once the application is running, you can access it through the frontend React application.
 
-    Example command:
-    ```bash
-    gcc -o armadillo takehome_solution.c -lglfw -lGL -lm
-    ```
+### Zip-Code Lookup
 
-    To compile the project you should be able to simply use compiler directly:
+1. **Upload CSV**: Navigate to the lookup section for either the Product or Population database.
+2. **Download Results**: After uploading, the application will generate a CSV file with the corresponding data from the database.
 
-    **Windows**
+### Zip-Code Update
 
-    On Windows, we assume you have Visual Studio (we tested Visual Studio 2022 Community Edtion), with C/C++ development. You should be able to open `x64 Native Tools Command Prompt for VS 2022` terminal, in which you will have
-    access to `cl.exe`, the MSVC compiler. Then you can compile the takehome as:
-    ```
-    cl.exe -nologo -std:c11 takehome_solution.c -Fetakehome.exe -link gdi32.lib user32.lib shell32.lib
-    ```
+1. **Upload CSV**: Navigate to the update section for either the Product or Population database.
+2. **Success/Error Messages**: The application will validate the data and update the database accordingly. Any errors (e.g., missing modified user or N/A values) will be displayed to the user.
 
-    **Linux**
+## Deployment
 
-    On Linux, you can use `clang` or `gcc`. We tested the compilation on `Ubuntu 2022.04.4 LTS` 
-    ```
-    gcc -Wall -std=c11 takehome.c -o takehome.exe -lm -lrt
-    ```
-    or
+To deploy the application to AWS, follow these steps:
 
-    ```
-    clang -Wall -std=c11 takehome.c -o takehome.exe -lm -lrt
-    ```
-    If that does not work, check the [GLFW compile guide](https://www.glfw.org/docs/latest/compile_guide.html), specifically you might need 
-    to install:
-    ```
-    sudo apt install libwayland-dev libxkbcommon-dev xorg-dev
-    ```
+1. **Ensure the AWS CLI is configured** with the appropriate credentials and region.
 
-    **macOS**
+2. **Deploy the Backend**:
+    - Use the Serverless Framework to deploy the backend to AWS:
+        ```bash
+        serverless deploy
+        ```
 
-    On macOS we tested the code on `Sonoma 14.5` and `Apple clang version 15.0.0`. We needed to silence some warnings 
-    as Apple is much more agressive about deprecating code
-    ```
-    clang -Wall -Wno-deprecated-declarations -ObjC takehome.c -o takehome.exe -framework Cocoa -framework IOkit
-    ```
+3. **Deploy the Frontend**:
+    - Host the React application on an S3 bucket or another static site hosting service.
 
-3. **Running**:
-    - Run the executable to view the rotating cube with the armadillo texture.
-    ```bash
-    ./armadillo
-    ```
+## Testing
 
-## Documentation
+The application has been thoroughly tested using sample CSV files located in the `data` directory. These files include:
 
-For a detailed explanation of the implementation, including design decisions and technical details, refer to the accompanying PDF document.
+- `product_master.csv`
+- `population_master.csv`
+- `lookup.csv`
+- `product_update.csv`
+- `population_update.csv`
+
+Tests include:
+
+- CSV upload and download functionality.
+- Database lookup accuracy.
+- Update operations with various edge cases (e.g., missing modified user, N/A values).
+
+## Technical Details
+
+- **Backend**: The backend is implemented using AWS Lambda functions with the Serverless Framework. It uses Python for handling the business logic and interacts with DynamoDB or other databases as specified.
+- **Frontend**: The frontend is a React application that provides an intuitive user interface for interacting with the backend services. It uses Tailwind CSS for styling and follows modern best practices.
+- **Deployment**: Deployment is handled via the Serverless Framework for the backend, making it easy to scale and manage in the cloud.
 
 ## Conclusion
 
-This project demonstrates a robust implementation of cross-platform 3D rendering using OpenGL, showcasing advanced techniques in texture mapping, shader programming, and resource management.
+This project demonstrates the ability to build a full-stack web application that interacts with cloud-based databases and services. The application meets all the requirements outlined in the assessment and is ready for deployment in a production environment.
